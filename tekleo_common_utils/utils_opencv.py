@@ -89,3 +89,48 @@ class UtilsOpencv:
         else:
             return self.rotate_free(image_cv, angle)
     #-------------------------------------------------------------------------------------------------------------------
+
+
+
+    # Image deskewing
+    #-------------------------------------------------------------------------------------------------------------------
+    # Calculate skew angle of an image
+    def calculate_skew_angle(self, image_cv: ndarray) -> float:
+        # Prep image, copy, convert to gray scale, blur, and threshold
+        image_result = image_cv.copy()
+        gray = self.convert_to_grayscale(image_result)
+        blur = self.blur_gaussian(gray, 9, 9)
+        thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+
+        # Apply dilate to merge text into meaningful lines/paragraphs.
+        # Use larger kernel on X axis to merge characters into single line, cancelling out any spaces.
+        # But use smaller kernel on Y axis to separate between different blocks of text
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 5))
+        dilate = cv2.dilate(thresh, kernel, iterations=5)
+
+        # Find all contours
+        contours, hierarchy = cv2.findContours(dilate, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        contours = sorted(contours, key = cv2.contourArea, reverse = True)
+        if len(contours) == 0:
+            return 0
+
+        # Find largest contour and surround in min area box
+        largestContour = contours[0]
+        minAreaRect = cv2.minAreaRect(largestContour)
+
+        # Determine the angle. Convert it to the value that was originally used to obtain skewed image
+        angle = minAreaRect[-1]
+        if angle < -45:
+            angle = 90 + angle
+            return -1.0 * angle
+        elif angle > 45:
+            angle = 90 - angle
+            return angle
+        return -1.0 * angle
+
+    # Deskew image
+    def deskew(self, image_cv: ndarray) -> (ndarray, float):
+        angle = self.calculate_skew_angle(image_cv)
+        rotated_image_cv = self.rotate(image_cv, -1.0 * angle)
+        return rotated_image_cv, angle
+    #-------------------------------------------------------------------------------------------------------------------
