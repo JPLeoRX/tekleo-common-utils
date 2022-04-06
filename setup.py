@@ -27,6 +27,7 @@ install_requires = [
     'Pillow',
     'numpy',
     'opencv-python',
+    'tekleo-common-message-protocol'
 ]
 
 
