@@ -14,5 +14,5 @@ class UtilsPing:
     def build(self) -> PingOutput:
         id = self.utils_id.generate_uuid()
         success = True
-        timestamp = self.utils_time.get_current_timestamp_ms()
+        timestamp = self.utils_time.get_timestamp_ms_now()
         return PingOutput(id, success, timestamp)
