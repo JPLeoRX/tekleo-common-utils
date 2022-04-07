@@ -7,7 +7,7 @@ with open("README.md", "r") as readme_file:
 
 setup_args = dict(
     name='tekleo-common-utils',
-    version='0.0.0.5',
+    version='0.0.0.6',
     description="",
     keywords=[],
     long_description=readme_text,
@@ -22,6 +22,8 @@ setup_args = dict(
 
 
 install_requires = [
+    'pytz',
+    'tzlocal',
     'injectable',
     'user-agent',
     'Pillow',
