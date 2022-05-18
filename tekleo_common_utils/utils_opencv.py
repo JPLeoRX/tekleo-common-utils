@@ -44,6 +44,30 @@ class UtilsOpencv:
         new_image_cv = cv2.GaussianBlur(new_image_cv, (blur_x, blur_y), 0)
         return new_image_cv
 
+    def get_most_occurring_color(self, image_cv: ndarray, apply_blur: bool = True) -> (int, int, int):
+        if apply_blur:
+            image_cv = self.blur_gaussian(image_cv, 25, 25)
+
+        width, height, channels = image_cv.shape
+        color_count_map = {}
+        for y in range(0, height):
+            for x in range(0, width):
+                BGR = (int(image_cv[x, y, 0]), int(image_cv[x, y, 1]), int(image_cv[x, y, 2]))
+                if BGR in color_count_map:
+                    color_count_map[BGR] += 1
+                else:
+                    color_count_map[BGR] = 1
+    
+        max_count = 0
+        max_BGR = (0, 0, 0)
+        for BGR in color_count_map:
+            count = color_count_map[BGR]
+            if count > max_count:
+                max_count = count
+                max_BGR = BGR
+    
+        return max_BGR
+
     # Image transformations
     #-------------------------------------------------------------------------------------------------------------------
     # Rotate (preserving original dimensions of the image)
