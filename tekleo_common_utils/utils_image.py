@@ -28,6 +28,9 @@ class UtilsImage:
         image_pil.save(image_path)
         return image_path
 
+    def save_image_cv(self, image_cv: ndarray, image_path: str) -> str:
+        return self.save_image_pil(self.convert_image_cv_to_image_pil(image_cv), image_path)
+
     def debug_image_cv(self, image_cv: ndarray, window_name: str = 'Debug Image'):
         cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
         cv2.imshow(window_name, image_cv)
