@@ -36,10 +36,13 @@ class UtilsTime:
         timestamp_s = date_time_object.timestamp()
         return int(round(timestamp_s * 1000))
 
-    def get_timestamp_ms_day(self, year: int, month: int, day: int, timezone: tzinfo = DEFAULT_TZ) -> int:
-        date_time_object = datetime(year=year, month=month, day=day, hour=12, minute=0, second=0).astimezone(timezone)
+    def get_timestamp_ms(self, year: int, month: int, day: int, hour: int, minute: int, second: int, timezone: tzinfo = DEFAULT_TZ) -> int:
+        date_time_object = datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second).astimezone(timezone)
         timestamp_s = date_time_object.timestamp()
         return int(round(timestamp_s * 1000))
+
+    def get_timestamp_ms_day(self, year: int, month: int, day: int, timezone: tzinfo = DEFAULT_TZ) -> int:
+        return self.get_timestamp_ms(year, month, day, hour=12, minute=0, second=0, timezone=timezone)
     #-------------------------------------------------------------------------------------------------------------------
 
 
@@ -61,14 +64,10 @@ class UtilsTime:
     # Day
     #-------------------------------------------------------------------------------------------------------------------
     def get_day_start_timestamp_ms(self, year: int, month: int, day: int, timezone: tzinfo = DEFAULT_TZ) -> int:
-        date_time_object = datetime(year=year, month=month, day=day, hour=0, minute=0, second=1).astimezone(timezone)
-        timestamp_s = date_time_object.timestamp()
-        return int(round(timestamp_s * 1000))
+        return self.get_timestamp_ms(year, month, day, hour=0, minute=0, second=1, timezone=timezone)
 
     def get_day_end_timestamp_ms(self, year: int, month: int, day: int, timezone: tzinfo = DEFAULT_TZ) -> int:
-        date_time_object = datetime(year=year, month=month, day=day, hour=23, minute=59, second=59).astimezone(timezone)
-        timestamp_s = date_time_object.timestamp()
-        return int(round(timestamp_s * 1000))
+        return self.get_timestamp_ms(year, month, day, hour=23, minute=59, second=59, timezone=timezone)
 
     def get_day_start_end_timestamps_ms(self, year: int, month: int, day: int, timezone: tzinfo = DEFAULT_TZ) -> (int, int):
         return self.get_day_start_timestamp_ms(year, month, day, timezone=timezone), self.get_day_end_timestamp_ms(year, month, day, timezone=timezone)
