@@ -7,7 +7,7 @@ with open("README.md", "r") as readme_file:
 
 setup_args = dict(
     name='tekleo-common-utils',
-    version='0.0.1.0',
+    version='0.0.1.1',
     description="",
     keywords=[],
     long_description=readme_text,
@@ -27,6 +27,8 @@ install_requires = [
     'injectable',
     'requests',
     'user-agent',
+    'Faker',
+    'namesgenerator',
     'Pillow',
     'numpy',
     'opencv-python',
