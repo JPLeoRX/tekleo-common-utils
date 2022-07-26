@@ -7,11 +7,16 @@ import tempfile
 import io
 import base64
 from numpy import ndarray
-from injectable import injectable
+from injectable import injectable, autowired, Autowired
+from tekleo_common_utils.utils_random import UtilsRandom
 
 
 @injectable
 class UtilsImage:
+    @autowired
+    def __init__(self, utils_random: Autowired(UtilsRandom)):
+        self.utils_random = utils_random
+
     def convert_image_pil_to_image_cv(self, image_pil: Image) -> ndarray:
         return cv2.cvtColor(numpy.array(image_pil), cv2.COLOR_RGB2BGR)
 
@@ -39,7 +44,8 @@ class UtilsImage:
 
     def download_image_pil(self, image_url: str, timeout_in_seconds: int = 90) -> Image:
         # Make request
-        response = requests.get(image_url, timeout=timeout_in_seconds, stream=True)
+        headers = {'User-Agent': self.utils_random.get_random_user_agent()}
+        response = requests.get(image_url, headers=headers, timeout=timeout_in_seconds, stream=True)
         response.raise_for_status()
 
         # Download the image into buffer
