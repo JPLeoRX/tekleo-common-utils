@@ -69,3 +69,9 @@ class UtilsImage:
         image_bytes = base64.b64decode(bytes(image_base64, 'utf-8'))
         image = image_pil_main.open(io.BytesIO(image_bytes))
         return image
+
+    def clear_exif_data(self, image_pil: Image) -> Image:
+        image_data = list(image_pil.getdata())
+        image_without_exif_pil = Image.new(image_pil.mode, image_pil.size)
+        image_without_exif_pil.putdata(image_data)
+        return image_without_exif_pil
