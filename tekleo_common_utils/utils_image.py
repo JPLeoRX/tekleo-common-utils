@@ -72,6 +72,6 @@ class UtilsImage:
 
     def clear_exif_data(self, image_pil: Image) -> Image:
         image_data = list(image_pil.getdata())
-        image_without_exif_pil = Image.new(image_pil.mode, image_pil.size)
+        image_without_exif_pil = image_pil_main.new(image_pil.mode, image_pil.size)
         image_without_exif_pil.putdata(image_data)
         return image_without_exif_pil
