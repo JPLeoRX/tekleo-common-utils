@@ -9,6 +9,7 @@ import base64
 from numpy import ndarray
 from injectable import injectable, autowired, Autowired
 from tekleo_common_utils.utils_random import UtilsRandom
+from pillow_heif import register_heif_opener
 
 
 @injectable
@@ -16,6 +17,7 @@ class UtilsImage:
     @autowired
     def __init__(self, utils_random: Autowired(UtilsRandom)):
         self.utils_random = utils_random
+        register_heif_opener()
 
     def convert_image_pil_to_image_cv(self, image_pil: Image) -> ndarray:
         return cv2.cvtColor(numpy.array(image_pil), cv2.COLOR_RGB2BGR)
@@ -30,7 +32,7 @@ class UtilsImage:
         return self.convert_image_pil_to_image_cv(self.open_image_pil(image_path))
 
     def save_image_pil(self, image_pil: Image, image_path: str) -> str:
-        image_pil.save(image_path)
+        image_pil.save(image_path, quality=100)
         return image_path
 
     def save_image_cv(self, image_cv: ndarray, image_path: str) -> str:
