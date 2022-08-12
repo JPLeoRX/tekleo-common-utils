@@ -32,6 +32,10 @@ class UtilsImage:
         return self.convert_image_pil_to_image_cv(self.open_image_pil(image_path))
 
     def save_image_pil(self, image_pil: Image, image_path: str) -> str:
+        # Make sure the image is in RGB mode
+        image_extension = image_path.split('.')[-1].lower()
+        if image_extension in ['jpg', 'jpeg']:
+            image_pil = image_pil.convert('RGB')
         image_pil.save(image_path, quality=100)
         return image_path
 
