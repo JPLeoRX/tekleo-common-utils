@@ -21,3 +21,7 @@ print(image_pil.getexif())
 image_without_exif_pil = u.clear_exif_data(image_pil)
 print(image_without_exif_pil.getexif())
 image_without_exif_pil.save("IMG_8629_NO_EXIF.HEIC")
+
+# Test conversion
+u.convert_to_jpg("image_rotate_+4.65.png")
+u.convert_to_jpg("IMG_8629.HEIC")

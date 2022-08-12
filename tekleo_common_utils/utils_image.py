@@ -77,3 +77,10 @@ class UtilsImage:
         image_without_exif_pil = image_pil_main.new(image_pil.mode, image_pil.size)
         image_without_exif_pil.putdata(image_data)
         return image_without_exif_pil
+
+    def convert_to_jpg(self, image_path: str) -> str:
+        extension = image_path.split('.')[-1]
+        new_image_path = image_path.replace('.' + extension, '.jpg')
+        image_pil = self.open_image_pil(image_path)
+        self.save_image_pil(image_pil, new_image_path)
+        return new_image_path
