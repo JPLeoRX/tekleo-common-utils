@@ -26,11 +26,13 @@ class UtilsImage:
     def convert_image_cv_to_image_pil(self, image_cv: ndarray) -> Image:
         return image_pil_main.fromarray(cv2.cvtColor(image_cv, cv2.COLOR_BGR2RGB))
 
-    def open_image_pil(self, image_path: str) -> Image:
-        return image_pil_main.open(image_path)
+    def open_image_pil(self, image_path: str, rotate_to_exif_orientation: bool = True) -> Image:
+        image_pil = image_pil_main.open(image_path)
+        image_pil = self.rotate_image_according_to_exif_orientation(image_pil)
+        return image_pil
 
-    def open_image_cv(self, image_path: str) -> ndarray:
-        return self.convert_image_pil_to_image_cv(self.open_image_pil(image_path))
+    def open_image_cv(self, image_path: str, rotate_to_exif_orientation: bool = True) -> ndarray:
+        return self.convert_image_pil_to_image_cv(self.open_image_pil(image_path, rotate_to_exif_orientation=rotate_to_exif_orientation))
 
     def save_image_pil(self, image_pil: Image, image_path: str) -> str:
         # Make sure the image is in RGB mode
