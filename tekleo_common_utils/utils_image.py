@@ -27,8 +27,12 @@ class UtilsImage:
         return image_pil_main.fromarray(cv2.cvtColor(image_cv, cv2.COLOR_BGR2RGB))
 
     def open_image_pil(self, image_path: str, rotate_to_exif_orientation: bool = True) -> Image:
+        # Open the image
         image_pil = image_pil_main.open(image_path)
-        image_pil = self.rotate_image_according_to_exif_orientation(image_pil)
+        # If we need to rotate in align with exif data - rotate first and clear exif after
+        if rotate_to_exif_orientation:
+            image_pil = self.rotate_image_according_to_exif_orientation(image_pil)
+            image_pil = self.clear_exif_data(image_pil)
         return image_pil
 
     def open_image_cv(self, image_path: str, rotate_to_exif_orientation: bool = True) -> ndarray:
