@@ -1,4 +1,5 @@
 from PIL import Image as image_pil_main
+from PIL import ExifTags
 from PIL.Image import Image
 import cv2
 import numpy
@@ -42,6 +43,10 @@ class UtilsImage:
     def save_image_cv(self, image_cv: ndarray, image_path: str) -> str:
         return self.save_image_pil(self.convert_image_cv_to_image_pil(image_cv), image_path)
 
+    def debug_image_pil(self, image_pil: Image, window_name: str = 'Debug Image'):
+        image_cv = self.convert_image_pil_to_image_cv(image_pil)
+        self.debug_image_cv(image_cv, window_name)
+
     def debug_image_cv(self, image_cv: ndarray, window_name: str = 'Debug Image'):
         cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
         cv2.imshow(window_name, image_cv)
@@ -81,6 +86,28 @@ class UtilsImage:
         image_without_exif_pil = image_pil_main.new(image_pil.mode, image_pil.size)
         image_without_exif_pil.putdata(image_data)
         return image_without_exif_pil
+
+    def rotate_image_according_to_exif_orientation(self, image_pil: Image) -> Image:
+        # Check that we have valid exif data
+        exif_data = image_pil.getexif()
+        if len(exif_data) == 0:
+            return image_pil
+
+        # Make sure we have orientation key
+        orientation_key = [k for k in ExifTags.TAGS.keys() if ExifTags.TAGS[k] == 'Orientation'][0]
+        if orientation_key not in exif_data:
+            return image_pil
+
+        # Get value and rotate accordingly
+        orientation_value = exif_data.get(orientation_key)
+        if orientation_value == 3:
+            image_pil = image_pil.rotate(180, expand=True)
+        elif orientation_value == 6:
+            image_pil = image_pil.rotate(270, expand=True)
+        elif orientation_value == 8:
+            image_pil = image_pil.rotate(90, expand=True)
+
+        return image_pil
 
     def convert_to_jpg(self, image_path: str) -> str:
         extension = image_path.split('.')[-1]
