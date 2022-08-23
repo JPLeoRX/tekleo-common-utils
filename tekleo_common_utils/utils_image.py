@@ -88,7 +88,8 @@ class UtilsImage:
         return image
 
     def clear_exif_data(self, image_pil: Image) -> Image:
-        del image_pil.info['exif']
+        if 'exif' in image_pil.info:
+            del image_pil.info['exif']
         return image_pil
 
     def rotate_image_according_to_exif_orientation(self, image_pil: Image) -> Image:
