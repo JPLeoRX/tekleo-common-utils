@@ -38,12 +38,12 @@ class UtilsImage:
     def open_image_cv(self, image_path: str, rotate_to_exif_orientation: bool = True) -> ndarray:
         return self.convert_image_pil_to_image_cv(self.open_image_pil(image_path, rotate_to_exif_orientation=rotate_to_exif_orientation))
 
-    def save_image_pil(self, image_pil: Image, image_path: str) -> str:
+    def save_image_pil(self, image_pil: Image, image_path: str, quality: int = 100, subsampling: int = 0) -> str:
         # Make sure the image is in RGB mode
         image_extension = image_path.split('.')[-1].lower()
-        if image_extension in ['jpg', 'jpeg'] and image_pil.mode != 'RGB':
+        if image_extension in ['jpg', 'jpeg'] and image_pil.mode.lower() != 'rgb':
             image_pil = image_pil.convert('RGB')
-        image_pil.save(image_path, quality=100)
+        image_pil.save(image_path, quality=quality, subsampling=subsampling)
         return image_path
 
     def save_image_cv(self, image_cv: ndarray, image_path: str) -> str:
