@@ -1,6 +1,6 @@
 from PIL import Image as image_pil_main
 from PIL import ExifTags
-from PIL.Image import Image
+from PIL.Image import Image, Exif
 import cv2
 import numpy
 import requests
@@ -41,7 +41,7 @@ class UtilsImage:
     def save_image_pil(self, image_pil: Image, image_path: str) -> str:
         # Make sure the image is in RGB mode
         image_extension = image_path.split('.')[-1].lower()
-        if image_extension in ['jpg', 'jpeg']:
+        if image_extension in ['jpg', 'jpeg'] and image_pil.mode != 'RGB':
             image_pil = image_pil.convert('RGB')
         image_pil.save(image_path, quality=100)
         return image_path
@@ -88,10 +88,8 @@ class UtilsImage:
         return image
 
     def clear_exif_data(self, image_pil: Image) -> Image:
-        image_data = list(image_pil.getdata())
-        image_without_exif_pil = image_pil_main.new(image_pil.mode, image_pil.size)
-        image_without_exif_pil.putdata(image_data)
-        return image_without_exif_pil
+        del image_pil.info['exif']
+        return image_pil
 
     def rotate_image_according_to_exif_orientation(self, image_pil: Image) -> Image:
         # Check that we have valid exif data
