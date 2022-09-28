@@ -7,7 +7,7 @@ with open("README.md", "r") as readme_file:
 
 setup_args = dict(
     name='tekleo-common-utils',
-    version='0.0.2.0',
+    version='0.0.2.1',
     description="",
     keywords=[],
     long_description=readme_text,
@@ -33,7 +33,6 @@ install_requires = [
     'numpy',
     'opencv-python',
     'pillow-heif',
-    'cairosvg',
     'tekleo-common-message-protocol'
 ]
 

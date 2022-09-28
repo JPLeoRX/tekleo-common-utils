@@ -11,8 +11,6 @@ from numpy import ndarray
 from injectable import injectable, autowired, Autowired
 from tekleo_common_utils.utils_random import UtilsRandom
 from pillow_heif import register_heif_opener
-import cairosvg
-import xml.etree.ElementTree as ET
 
 
 @injectable
@@ -28,55 +26,9 @@ class UtilsImage:
     def convert_image_cv_to_image_pil(self, image_cv: ndarray) -> Image:
         return image_pil_main.fromarray(cv2.cvtColor(image_cv, cv2.COLOR_BGR2RGB))
 
-    def _open_image_pil_svg(self, image_path: str) -> Image:
-        # Make sure this is SVG
-        if not image_path.lower().endswith("svg"):
-            raise RuntimeError("Can't open a non-svg fil! image_path=" + str(image_path))
-
-        # Initial width/height
-        svg_width = 1000
-        svg_height = 1000
-
-        # Open SVG as XML
-        with open(image_path) as f:
-            # Parse XML
-            xml_tree = ET.parse(f)
-            xml_root = xml_tree.getroot()
-            xml_root_items = xml_root.items()
-            width_segment = [i for i in xml_root_items if i[0] == 'width'][0]
-            height_segment = [i for i in xml_root_items if i[0] == 'height'][0]
-            width_str = width_segment[1].replace('px', '')
-            height_str = height_segment[1].replace('px', '')
-
-            # Parse width
-            if width_str.endswith("pt"):
-                svg_width = int(float(width_str.replace('pt', '')) * 1.25)
-            else:
-                svg_width = int(width_str)
-
-            # Parse height
-            if height_str.endswith("pt"):
-                svg_height = int(float(height_str.replace('pt', '')) * 1.25)
-            else:
-                svg_height = int(height_str)
-
-        # Convert SVG to PNG
-        output_stream = io.BytesIO()
-        cairosvg.svg2png(url=image_path, write_to=output_stream, background_color="white", unsafe=False, output_width=svg_width, output_height=svg_height)
-        image_pil = image_pil_main.open(output_stream)
-        return image_pil
-
     def open_image_pil(self, image_path: str, rotate_to_exif_orientation: bool = True) -> Image:
-        image_pil = None
-
-        # If this is an SVG
-        if image_path.lower().endswith('.svg'):
-            # Open as SVG
-            image_pil = self._open_image_pil_svg(image_path)
-        # If this is a normal image
-        else:
-            # Open the image if it's a normal image
-            image_pil = image_pil_main.open(image_path)
+        # Open the image
+        image_pil = image_pil_main.open(image_path)
 
         # If we need to rotate in align with exif data - rotate first and clear exif after
         if rotate_to_exif_orientation:
