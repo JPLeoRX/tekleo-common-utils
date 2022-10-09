@@ -33,6 +33,9 @@ install_requires = [
     'numpy',
     'opencv-python',
     'pillow-heif',
+    'pdf2image',
+    'PyPDF2',
+    'pdfminer',
     'tekleo-common-message-protocol'
 ]
 
