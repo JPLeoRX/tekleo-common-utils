@@ -37,7 +37,7 @@ class UtilsTime:
         return int(round(timestamp_s * 1000))
 
     def get_timestamp_ms(self, year: int, month: int, day: int, hour: int, minute: int, second: int, timezone: tzinfo = DEFAULT_TZ) -> int:
-        date_time_object = datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second).astimezone(timezone)
+        date_time_object = datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second, tzinfo=timezone).astimezone(timezone)
         timestamp_s = date_time_object.timestamp()
         return int(round(timestamp_s * 1000))
 

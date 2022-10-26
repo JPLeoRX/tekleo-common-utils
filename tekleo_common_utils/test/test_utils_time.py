@@ -41,3 +41,12 @@ month_start_2, month_end_2 = utils_time.get_month_start_end_timestamps_ms(2022, 
 print('Month start 2:', utils_time.format_timestamp_ms(month_start_2, timezone=utils_time.get_timezone_local()))
 print('Month end 2:', utils_time.format_timestamp_ms(month_end_2, timezone=utils_time.get_timezone_local()))
 print('--------------------------------------------------------------------------------------------\n')
+
+print('Testing day start/end')
+day_start_local, day_end_local = utils_time.get_day_start_end_timestamps_ms(2022, 10, 5, timezone=utils_time.get_timezone_local())
+print("Day start/end (local)  :  ", day_start_local, "/", day_end_local)
+day_start_utc, day_end_utc = utils_time.get_day_start_end_timestamps_ms(2022, 10, 5, timezone=utils_time.get_timezone_utc())
+print("Day start/end (UTC)    :  ", day_start_utc, "/", day_end_utc)
+assert day_start_local != day_start_utc
+assert day_end_local != day_end_utc
+print('--------------------------------------------------------------------------------------------\n')
