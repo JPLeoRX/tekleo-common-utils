@@ -1,3 +1,7 @@
+import os, warnings
+warnings.simplefilter("ignore")
+os.environ["PYTHONWARNINGS"] = "ignore"
+
 from .utils_class import UtilsClass
 from .utils_config import UtilsConfig
 from .utils_env import UtilsEnv
