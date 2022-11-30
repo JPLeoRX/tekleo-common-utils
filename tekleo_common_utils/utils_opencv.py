@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import cv2
 import numpy
 from numpy import ndarray
@@ -38,6 +40,50 @@ class UtilsOpencv:
             return image_cv
         else:
             return cv2.cvtColor(image_cv, cv2.COLOR_BGR2GRAY)
+
+    # Brightness range 0 to 510, same result = 255
+    # Contrast range 0 to 254, same result = 127
+    def brightness_and_contrast(self, image_cv: ndarray, brightness: int = 255, contrast: int = 127) -> ndarray:
+        new_image_cv = image_cv.copy()
+        brightness = int((brightness - 0) * (255 - (-255)) / (510 - 0) + (-255))
+        contrast = int((contrast - 0) * (127 - (-127)) / (254 - 0) + (-127))
+
+        # Apply brightness
+        if brightness != 0:
+            if brightness > 0:
+                shadow = brightness
+                max = 255
+            else:
+                shadow = 0
+                max = 255 + brightness
+            al_pha = (max - shadow) / 255
+            ga_mma = shadow
+
+            # The function addWeighted calculates the weighted sum of two arrays
+            new_image_cv = cv2.addWeighted(new_image_cv, al_pha, new_image_cv, 0, ga_mma)
+
+        # Apply contrast
+        if contrast != 0:
+            alpha = float(131 * (contrast + 127)) / (127 * (131 - contrast))
+            gamma = 127 * (1 - alpha)
+
+            # The function addWeighted calculates the weighted sum of two arrays
+            new_image_cv = cv2.addWeighted(new_image_cv, alpha, new_image_cv, 0, gamma)
+
+        return new_image_cv
+
+    def border(self, image_cv: ndarray, border_top: int, border_bottom: int, border_left: int, border_right: int, border_color: Tuple[int, int, int]) -> ndarray:
+        new_image_cv = image_cv.copy()
+        new_image_cv = cv2.copyMakeBorder(
+            new_image_cv,
+            top=border_top,
+            bottom=border_bottom,
+            left=border_left,
+            right=border_right,
+            borderType=cv2.BORDER_CONSTANT,
+            value=[border_color[0], border_color[1], border_color[2]]
+        )
+        return new_image_cv
 
     def blur_gaussian(self, image_cv: ndarray, blur_x: int, blur_y: int) -> ndarray:
         new_image_cv = image_cv.copy()

@@ -1,3 +1,10 @@
+# # Run dependency injections
+import os
+import tekleo_common_utils
+from injectable import load_injection_container
+# load_injection_container(str(os.path.dirname(tekleo_common_utils.__file__)))
+load_injection_container('../')
+
 from tekleo_common_utils.utils_image import UtilsImage
 from tekleo_common_utils.utils_opencv import UtilsOpencv
 
@@ -34,5 +41,17 @@ def test_rotation_2():
     print(utils_opencv.get_dimensions_wh(image_free))
 
 
-test_rotation_1()
-test_rotation_2()
+def test_brightness_and_contrast():
+    image_cv = utils_image.open_image_cv('IMG_9798.JPG')
+    image_cv = utils_opencv.brightness_and_contrast(image_cv, brightness=255, contrast=127)
+    utils_image.debug_image_cv(image_cv)
+
+def test_border():
+    image_cv = utils_image.open_image_cv('IMG_9798.JPG')
+    image_cv = utils_opencv.border(image_cv, 100, 0, 0, 0, (0, 0, 0))
+    utils_image.debug_image_cv(image_cv)
+
+# test_rotation_1()
+# test_rotation_2()
+test_brightness_and_contrast()
+# test_border()
