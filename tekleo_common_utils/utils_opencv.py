@@ -108,6 +108,36 @@ class UtilsOpencv:
         new_image_cv = cv2.GaussianBlur(new_image_cv, (blur_x, blur_y), 0)
         return new_image_cv
 
+    def sharpen_blur(self, image_cv: ndarray, sharpen_blur_x: int, sharpen_blur_y) -> ndarray:
+        new_image_cv = image_cv.copy()
+        new_image_cv_smoothed = self.blur_gaussian(new_image_cv, sharpen_blur_x, sharpen_blur_y)
+        new_image_cv_sharpened = cv2.addWeighted(new_image_cv, 1.5, new_image_cv_smoothed, -0.5, 0)
+        return new_image_cv_sharpened
+
+    def sharpen_kernel(self, image_cv: ndarray) -> ndarray:
+        new_image_cv = image_cv.copy()
+
+        kernel = numpy.array([
+            [0, -1, 0],
+            [-1, 5,-1],
+            [0, -1, 0]
+        ])
+
+        # kernel = numpy.array([
+        #     [-1, -1, -1],
+        #     [-1, 9, -1],
+        #     [-1, -1, -1]
+        # ])
+
+        # kernel = numpy.array([
+        #     [-1, -1, -1],
+        #     [-1, 8, -1],
+        #     [-1, -1, 0]
+        # ], numpy.float32)
+
+        new_image_cv_sharpened = cv2.filter2D(src=new_image_cv, ddepth=-1, kernel=kernel)
+        return new_image_cv_sharpened
+
     def get_most_occurring_color(self, image_cv: ndarray, apply_blur: bool = True) -> (int, int, int):
         if apply_blur:
             image_cv = self.blur_gaussian(image_cv, 25, 25)

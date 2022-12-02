@@ -67,8 +67,17 @@ def test_hue():
     image_cv = utils_opencv.hue(image_cv, hue_coefficient=0.94)
     utils_image.debug_image_cv(image_cv)
 
+def test_sharpen():
+    image_cv = utils_image.open_image_cv('IMG_9798.JPG')
+    utils_image.debug_image_cv(image_cv)
+    # image_cv_1 = utils_opencv.sharpen_blur(image_cv, sharpen_blur_x=105, sharpen_blur_y=105)
+    # utils_image.debug_image_cv(image_cv_1)
+    image_cv_2 = utils_opencv.sharpen_kernel(image_cv)
+    utils_image.debug_image_cv(image_cv_2)
+
 # test_rotation_1()
 # test_rotation_2()
 # test_brightness_and_contrast()
 # test_border()
-test_hue()
+# test_hue()
+test_sharpen()
