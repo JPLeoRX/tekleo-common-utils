@@ -58,8 +58,17 @@ def test_saturation():
     image_cv = utils_opencv.saturation(image_cv, saturation_coefficient=1.5)
     utils_image.debug_image_cv(image_cv)
 
+def test_hue():
+    image_cv = utils_image.open_image_cv('IMG_9798.JPG')
+    image_cv = utils_opencv.hue(image_cv, hue_coefficient=1.0)
+    utils_image.debug_image_cv(image_cv)
+    # image_cv = utils_opencv.hue(image_cv, hue_coefficient=1.06)
+    # utils_image.debug_image_cv(image_cv)
+    image_cv = utils_opencv.hue(image_cv, hue_coefficient=0.94)
+    utils_image.debug_image_cv(image_cv)
+
 # test_rotation_1()
 # test_rotation_2()
 # test_brightness_and_contrast()
 # test_border()
-test_saturation()
+test_hue()
