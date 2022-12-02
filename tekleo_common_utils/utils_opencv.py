@@ -72,6 +72,15 @@ class UtilsOpencv:
 
         return new_image_cv
 
+    def saturation(self, image_cv: ndarray, saturation_coefficient: float) -> ndarray:
+        image_cv_hsv = cv2.cvtColor(image_cv, cv2.COLOR_BGR2HSV).astype("float32")
+        (h, s, v) = cv2.split(image_cv_hsv)
+        s = s * saturation_coefficient
+        s = numpy.clip(s,0,255)
+        image_cv_hsv = cv2.merge([h,s,v])
+        image_cv_bgr = cv2.cvtColor(image_cv_hsv.astype("uint8"), cv2.COLOR_HSV2BGR)
+        return image_cv_bgr
+
     def border(self, image_cv: ndarray, border_top: int, border_bottom: int, border_left: int, border_right: int, border_color: Tuple[int, int, int]) -> ndarray:
         new_image_cv = image_cv.copy()
         new_image_cv = cv2.copyMakeBorder(
