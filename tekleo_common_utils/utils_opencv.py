@@ -103,6 +103,17 @@ class UtilsOpencv:
         )
         return new_image_cv
 
+    def flip(self, image_cv: ndarray, flip_axis: str) -> ndarray:
+        new_image_cv = image_cv.copy()
+        flip_axis = flip_axis.strip().lower()
+        if flip_axis == "x":
+            new_image_cv = cv2.flip(new_image_cv, 1)
+        elif flip_axis == "y":
+            new_image_cv = cv2.flip(new_image_cv, 0)
+        else:
+            raise ValueError("Unknown flip_axis=" + str(flip_axis) + ", must be from ['x', 'y']")
+        return new_image_cv
+
     def blur_gaussian(self, image_cv: ndarray, blur_x: int, blur_y: int) -> ndarray:
         new_image_cv = image_cv.copy()
         new_image_cv = cv2.GaussianBlur(new_image_cv, (blur_x, blur_y), 0)
