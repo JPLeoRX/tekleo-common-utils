@@ -1,13 +1,18 @@
-from typing import Tuple
-
+from typing import Tuple, List
 import cv2
 import numpy
 from numpy import ndarray
-from injectable import injectable
+from injectable import injectable, autowired, Autowired
+from tekleo_common_message_protocol import PointPixel
+from tekleo_common_utils.utils_math import UtilsMath
 
 
 @injectable
 class UtilsOpencv:
+    @autowired
+    def __init__(self, utils_math: Autowired(UtilsMath)):
+        self.utils_math = utils_math
+
     def get_dimensions_hw(self, image_cv: ndarray) -> (int, int):
         h, w = image_cv.shape[:2]
         return h, w
@@ -15,6 +20,10 @@ class UtilsOpencv:
     def get_dimensions_wh(self, image_cv: ndarray) -> (int, int):
         h, w = image_cv.shape[:2]
         return w, h
+
+    def get_area(self, image_cv: ndarray) -> int:
+        h, w = self.get_dimensions_hw(image_cv)
+        return h * w
 
     def get_number_of_channels(self, image_cv: ndarray) -> int:
         if image_cv.ndim == 2:
@@ -175,8 +184,8 @@ class UtilsOpencv:
 
     # Image transformations
     #-------------------------------------------------------------------------------------------------------------------
-    # Rotate (preserving original dimensions of the image)
-    def rotate_bound(self, image_cv: ndarray, angle: float) -> ndarray:
+    # Rotate (with filling in background gaps, but preserving original dimensions of the image)
+    def rotate_with_background_warp_bound(self, image_cv: ndarray, angle: float) -> ndarray:
         if angle == 0:
             return image_cv
         image_result = image_cv.copy()
@@ -186,8 +195,8 @@ class UtilsOpencv:
         image_result = cv2.warpAffine(image_result, rotation_matrix, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
         return image_result
 
-    # Rotate (changing dimensions of the original image)
-    def rotate_free(self, image_cv: ndarray, angle: float) -> ndarray:
+    # Rotate (with filling in background gaps, but changing dimensions of the original image)
+    def rotate_with_background_warp_free(self, image_cv: ndarray, angle: float) -> ndarray:
         if angle == 0:
             return image_cv
         image_result = image_cv.copy()
@@ -211,12 +220,67 @@ class UtilsOpencv:
         image_result = cv2.warpAffine(image_result, rotation_matrix, (new_w, new_h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
         return image_result
 
+    # Rotate (with cutting away any background gaps, and changing dimensions of the original image)
+    def rotate_with_background_crop(self, image_cv: ndarray, angle: float) -> ndarray:
+        if angle == 0:
+            return image_cv
+        image_result = image_cv.copy()
+        h, w = image_result.shape[:2]
+        c_x, c_y, = (w // 2, h // 2)
+
+        # Compute the rotation matrix
+        rotation_matrix = cv2.getRotationMatrix2D((c_x, c_y), angle, 1.0)
+        rotation_matrix_cos = numpy.abs(rotation_matrix[0, 0])
+        rotation_matrix_sin = numpy.abs(rotation_matrix[0, 1])
+
+        # Compute the new bounding dimensions of the image (with a safezone)
+        new_w = int((h * rotation_matrix_sin) + (w * rotation_matrix_cos)) + 4
+        new_h = int((h * rotation_matrix_cos) + (w * rotation_matrix_sin)) + 4
+
+        # Adjust the rotation matrix to take into account translation
+        rotation_matrix[0, 2] += (new_w / 2) - c_x
+        rotation_matrix[1, 2] += (new_h / 2) - c_y
+
+        # Rotate (with black background)
+        image_result = cv2.warpAffine(image_result, rotation_matrix, (new_w, new_h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT)
+
+        # Find rotated contours
+        gray = self.convert_to_grayscale(image_result)
+        blur = self.blur_gaussian(gray, 9, 9)
+        contours, hierarchy = cv2.findContours(blur, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        contours = sorted(contours, key = cv2.contourArea, reverse = True)
+
+        # Find largest contour, approximate it, and get its points
+        contour = contours[0]
+        contour_length = cv2.arcLength(contour, True)
+        contour = cv2.approxPolyDP(contour, 0.001 * contour_length, True)
+        x_values = sorted(set([p[0][0] for p in contour]))
+        y_values = sorted(set([p[0][1] for p in contour]))
+        x_values = self.utils_math.reduce_list_int(x_values, reduction_delta=3)
+        y_values = self.utils_math.reduce_list_int(y_values, reduction_delta=3)
+
+        # Apply crop to the image (with safezone)
+        if len(y_values) > 2:
+            y_values.remove(min(y_values))
+            y_values.remove(max(y_values))
+        if len(x_values) > 2:
+            x_values.remove(min(x_values))
+            x_values.remove(max(x_values))
+        crop_y_start = min(y_values) + 4
+        crop_y_end = max(y_values) - 4
+        crop_x_start = min(x_values) + 4
+        crop_x_end = max(x_values) - 4
+        image_result = image_result[crop_y_start:crop_y_end, crop_x_start:crop_x_end]
+
+        # Return result
+        return image_result
+
     # Rotate (smartly, deciding which way of rotation will work better here)
     def rotate(self, image_cv: ndarray, angle: float, rotate_bound_threshold_angle: float = 20.0) -> ndarray:
         if -1.0 * rotate_bound_threshold_angle <= angle <= rotate_bound_threshold_angle:
-            return self.rotate_bound(image_cv, angle)
+            return self.rotate_with_background_warp_bound(image_cv, angle)
         else:
-            return self.rotate_free(image_cv, angle)
+            return self.rotate_with_background_warp_free(image_cv, angle)
     #-------------------------------------------------------------------------------------------------------------------
 
 
@@ -263,3 +327,33 @@ class UtilsOpencv:
         rotated_image_cv = self.rotate(image_cv, -1.0 * angle)
         return rotated_image_cv, angle
     #-------------------------------------------------------------------------------------------------------------------
+
+
+    def edge_detection(self, image_cv: ndarray) -> List[List[PointPixel]]:
+        image_gray_cv = self.convert_to_grayscale(image_cv)
+        image_blurred_cv = self.blur_gaussian(image_gray_cv, 3, 3)
+        # image_threshold_cv = cv2.adaptiveThreshold(image_blurred_cv, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 25, 11)
+        ret, image_threshold_cv = cv2.threshold(image_blurred_cv, 100, 255, cv2.THRESH_BINARY)
+        contours, hierarchy = cv2.findContours(image_threshold_cv, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+        new_contours = []
+        min_countour_area = self.get_area(image_cv) * (0.3 / 100)
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if area > min_countour_area:
+                contour_length = cv2.arcLength(contour, True)
+                reduced_contour = cv2.approxPolyDP(contour, 0.001 * contour_length, True)
+                new_contours.append(reduced_contour)
+
+        new_contours = sorted(new_contours, key = cv2.contourArea, reverse = True)
+
+        contours_as_points = []
+        for contour in new_contours:
+            points = []
+            for raw_point in contour:
+                x = raw_point[0][0]
+                y = raw_point[0][1]
+                points.append(PointPixel(x, y))
+            contours_as_points.append(points)
+
+        return contours_as_points
