@@ -8,6 +8,7 @@ from .utils_env import UtilsEnv
 from .utils_file import UtilsFile
 from .utils_id import UtilsId
 from .utils_image import UtilsImage
+from .utils_math import UtilsMath
 from .utils_method import UtilsMethod
 from .utils_opencv import UtilsOpencv
 from .utils_pdf import UtilsPdf
@@ -23,6 +24,7 @@ __all__ = [
     UtilsFile,
     UtilsId,
     UtilsImage,
+    UtilsMath,
     UtilsMethod,
     UtilsOpencv,
     UtilsPdf,
