@@ -1,9 +1,10 @@
+import math
 from typing import Tuple, List
 import cv2
 import numpy
 from numpy import ndarray
 from injectable import injectable, autowired, Autowired
-from tekleo_common_message_protocol import PointPixel
+from tekleo_common_message_protocol import PointPixel, PointRelative
 from tekleo_common_utils.utils_math import UtilsMath
 
 
@@ -274,6 +275,49 @@ class UtilsOpencv:
 
         # Return result
         return image_result
+
+    # Rotate 90 degrees, with added points
+    def rotate_90(self, image_cv: ndarray, points: List[PointPixel], orientation: str) -> (ndarray, List[PointPixel]):
+        image_result = image_cv.copy()
+        h, w = image_result.shape[:2]
+        c_x, c_y, = (w // 2, h // 2)
+
+        # Determine angle
+        angle = 0
+        orientation = orientation.strip().lower()
+        if orientation == 'r' or orientation == 'right':
+            angle = -90
+        elif orientation == 'l' or orientation == 'left':
+            angle = 90
+        else:
+            raise ValueError("Unknown orientation value = " + str(orientation))
+
+        # Compute the rotation matrix
+        rotation_matrix = cv2.getRotationMatrix2D((c_x, c_y), angle, 1.0)
+        rotation_matrix_cos = numpy.abs(rotation_matrix[0, 0])
+        rotation_matrix_sin = numpy.abs(rotation_matrix[0, 1])
+
+        # Compute the new bounding dimensions of the image
+        new_w = int((h * rotation_matrix_sin) + (w * rotation_matrix_cos))
+        new_h = int((h * rotation_matrix_cos) + (w * rotation_matrix_sin))
+
+        # Adjust the rotation matrix to take into account translation to the center
+        rotation_matrix[0, 2] += (new_w / 2) - c_x
+        rotation_matrix[1, 2] += (new_h / 2) - c_y
+
+        # Rotate (with black background)
+        image_result = cv2.warpAffine(image_result, rotation_matrix, (new_w, new_h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT)
+
+        # Rotate points
+        points_result = []
+        for point in points:
+            np_point = numpy.array([[[point.x, point.y]]], dtype = "float32")
+            np_rotated_point = cv2.transform(np_point, rotation_matrix)
+            rotated_point = PointPixel(int(np_rotated_point[0][0][0]), int(np_rotated_point[0][0][1]))
+            points_result.append(rotated_point)
+
+        # Return result
+        return (image_result, points_result)
 
     # Rotate (smartly, deciding which way of rotation will work better here)
     def rotate(self, image_cv: ndarray, angle: float, rotate_bound_threshold_angle: float = 20.0) -> ndarray:
