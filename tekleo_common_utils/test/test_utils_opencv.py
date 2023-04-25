@@ -15,8 +15,8 @@ utils_opencv = UtilsOpencv()
 
 def test_rotation_1():
     image_cv = utils_image.open_image_cv('image_rotate_+4.65.png')
-    image_bound = utils_opencv.rotate_bound(image_cv, -4.65)
-    image_free = utils_opencv.rotate_free(image_cv, -4.65)
+    image_bound = utils_opencv.rotate_with_background_warp_bound(image_cv, -4.65)
+    image_free = utils_opencv.rotate_with_background_warp_free(image_cv, -4.65)
 
     utils_image.debug_image_cv(image_cv, 'Image Original')
     utils_image.debug_image_cv(image_bound, 'Rotated Bound')
@@ -28,17 +28,24 @@ def test_rotation_1():
 
 
 def test_rotation_2():
-    image_cv = utils_image.open_image_cv('image_rotate_+90.png')
-    image_bound = utils_opencv.rotate_bound(image_cv, 90)
-    image_free = utils_opencv.rotate_free(image_cv, 90)
+    # image_cv = utils_image.open_image_cv('image_rotate_+90.png')
+    # image_cv = utils_image.open_image_cv('signs1.jpg')
+    image_cv = utils_image.open_image_cv('tttttt1.JPG')
+    # image_bound = utils_opencv.rotate_with_background_warp_bound(image_cv, 15)
+    # image_free = utils_opencv.rotate_with_background_warp_free(image_cv, 15)
+    # image_crop = utils_opencv.rotate_with_background_crop(image_cv, 1)
 
     utils_image.debug_image_cv(image_cv, 'Image Original')
-    utils_image.debug_image_cv(image_bound, 'Rotated Bound')
-    utils_image.debug_image_cv(image_free, 'Rotated Free')
-
-    print(utils_opencv.get_dimensions_wh(image_cv))
-    print(utils_opencv.get_dimensions_wh(image_bound))
-    print(utils_opencv.get_dimensions_wh(image_free))
+    # utils_image.debug_image_cv(image_bound, 'Rotated Bound')
+    # utils_image.debug_image_cv(image_free, 'Rotated Free')
+    utils_image.debug_image_cv(utils_opencv.rotate_with_background_crop(image_cv, 1), 'Rotated Cropped 1')
+    utils_image.debug_image_cv(utils_opencv.rotate_with_background_crop(image_cv, 5), 'Rotated Cropped 5')
+    utils_image.debug_image_cv(utils_opencv.rotate_with_background_crop(image_cv, 10), 'Rotated Cropped 10')
+    utils_image.debug_image_cv(utils_opencv.rotate_with_background_crop(image_cv, 20), 'Rotated Cropped 20')
+    #
+    # print(utils_opencv.get_dimensions_wh(image_cv))
+    # print(utils_opencv.get_dimensions_wh(image_bound))
+    # print(utils_opencv.get_dimensions_wh(image_free))
 
 
 def test_brightness_and_contrast():
@@ -89,4 +96,6 @@ def test_flip():
 # test_border()
 # test_hue()
 # test_sharpen()
-test_flip()
+# test_flip()
+
+test_rotation_2()
