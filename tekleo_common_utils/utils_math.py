@@ -1,7 +1,7 @@
 import math
 from typing import List
 from injectable import injectable
-from tekleo_common_message_protocol import PointRelative
+from tekleo_common_message_protocol import PointRelative, RectanglePixel
 
 
 @injectable
@@ -67,3 +67,26 @@ class UtilsMath:
         point_a_rotated = self.points_multiply(point_a_shifted, PointRelative(angle_cos, angle_sin))
         point_a_rotated_back = self.points_add(point_a_rotated, point_center)
         return point_a_rotated_back
+
+    def does_rectangle_contain(self, rectangle_big: RectanglePixel, rectangle_small: RectanglePixel) -> bool:
+        if rectangle_small.x > rectangle_big.x:
+            if rectangle_small.x + rectangle_small.w < rectangle_big.x + rectangle_big.w:
+                if rectangle_small.y > rectangle_big.y:
+                    if rectangle_small.y + rectangle_small.h < rectangle_big.y + rectangle_big.h:
+                        return True
+        return False
+
+    def do_rectangles_overlap(self, rectangle_a: RectanglePixel, rectangle_b: RectanglePixel) -> bool:
+        # If one rectangle is on left side of other
+        if rectangle_a.x + rectangle_a.w < rectangle_b.x:
+            return False
+        if rectangle_b.x + rectangle_b.w < rectangle_a.x:
+            return False
+
+        # If one rectangle is above other
+        if rectangle_a.y + rectangle_a.h < rectangle_b.y:
+            return False
+        if rectangle_b.y + rectangle_b.h < rectangle_a.y:
+            return False
+
+        return True
