@@ -325,6 +325,32 @@ class UtilsOpencv:
             return self.rotate_with_background_warp_bound(image_cv, angle)
         else:
             return self.rotate_with_background_warp_free(image_cv, angle)
+
+    # Blend a background image with an alpha channeled foreground image, with an additional factor to tune how strongly the alpha is applied
+    # foreground_alpha_factor = 0.1 will result in more transparent blend
+    # foreground_alpha_factor = 1.0 will preserve the alpha channel fully
+    def blend(self, background_image_cv: ndarray, foreground_image_cv: ndarray, foreground_alpha_cv: ndarray, foreground_alpha_factor: float = 1) -> ndarray:
+        # To be safe make copies here
+        background_image_cv = background_image_cv.copy()
+        foreground_image_cv = foreground_image_cv.copy()
+        foreground_alpha_cv = foreground_alpha_cv.copy()
+
+        # Convert uint8 to float
+        foreground = foreground_image_cv.astype(float)
+        background = background_image_cv.astype(float)
+
+        # Normalize the alpha mask to keep intensity between 0 and 1 and apply factor
+        alpha = foreground_alpha_cv.astype(float) / 255
+        alpha = alpha * foreground_alpha_factor
+
+        # Multiply the foreground with the alpha matte
+        foreground = cv2.multiply(alpha, foreground)
+
+        # Multiply the background with (1 - alpha)
+        background = cv2.multiply(1.0 - alpha, background)
+
+        # Add the masked foreground and background.
+        return numpy.uint8(cv2.add(foreground, background))
     #-------------------------------------------------------------------------------------------------------------------
 
 
