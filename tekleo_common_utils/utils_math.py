@@ -77,6 +77,10 @@ class UtilsMath:
         return False
 
     def do_rectangles_overlap(self, rectangle_a: RectanglePixel, rectangle_b: RectanglePixel) -> bool:
+        # If they contain each other this is an overlap
+        if self.does_rectangle_contain(rectangle_a, rectangle_b) or self.does_rectangle_contain(rectangle_b, rectangle_a):
+            return True
+
         # If one rectangle is on left side of other
         if rectangle_a.x + rectangle_a.w < rectangle_b.x:
             return False
