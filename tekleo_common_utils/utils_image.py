@@ -1,3 +1,5 @@
+from typing import List
+
 from PIL import Image as image_pil_main
 from PIL import ExifTags
 from PIL.Image import Image, Exif
@@ -11,6 +13,7 @@ from numpy import ndarray
 from injectable import injectable, autowired, Autowired
 from tekleo_common_utils.utils_random import UtilsRandom
 from pillow_heif import register_heif_opener
+import exifread
 
 
 @injectable
@@ -26,7 +29,7 @@ class UtilsImage:
     def convert_image_cv_to_image_pil(self, image_cv: ndarray) -> Image:
         return image_pil_main.fromarray(cv2.cvtColor(image_cv, cv2.COLOR_BGR2RGB))
 
-    def open_image_pil(self, image_path: str, rotate_to_exif_orientation: bool = True) -> Image:
+    def open_image_pil(self, image_path: str, rotate_to_exif_orientation: bool = False) -> Image:
         # Open the image
         image_pil = image_pil_main.open(image_path)
 
@@ -36,7 +39,7 @@ class UtilsImage:
             image_pil = self.clear_exif_data(image_pil)
         return image_pil
 
-    def open_image_cv(self, image_path: str, rotate_to_exif_orientation: bool = True) -> ndarray:
+    def open_image_cv(self, image_path: str, rotate_to_exif_orientation: bool = False) -> ndarray:
         return self.convert_image_pil_to_image_cv(self.open_image_pil(image_path, rotate_to_exif_orientation=rotate_to_exif_orientation))
 
     def save_image_pil(self, image_pil: Image, image_path: str, quality: int = 100, subsampling: int = 0) -> str:
@@ -59,6 +62,28 @@ class UtilsImage:
         cv2.imshow(window_name, image_cv)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
+    def _debug_image_metadata_dms_coordinates_to_dd_coordinates(self, coordinates: List[exifread.utils.Ratio], coordinates_ref: str):
+        decimal_degrees = (coordinates[0].num / coordinates[0].den) + (coordinates[1].num / coordinates[1].den) / 60 + (coordinates[2].num / coordinates[2].den) / 3600
+        if coordinates_ref == "S" or coordinates_ref == "W":
+            decimal_degrees = -decimal_degrees
+        return decimal_degrees
+
+    def debug_image_metadata(self, image_path: str):
+        # Open image file for reading (must be in binary mode)
+        with open(image_path, "rb") as file_handle:
+            # Return Exif tags
+            tags = exifread.process_file(file_handle)
+            print('------------------------------ DEBUGGING EXIF METADATA ------------------------------')
+            print(f'{"File Path":40} |   {image_path}')
+            for tag in tags.keys():
+                if tag not in ('JPEGThumbnail', 'TIFFThumbnail', 'Filename', 'EXIF MakerNote'):
+                    print(f'{tag:40} |   {tags[tag]}')
+            parsed_lat = self._debug_image_metadata_dms_coordinates_to_dd_coordinates(tags["GPS GPSLatitude"].values, tags["GPS GPSLatitudeRef"])
+            parsed_lng = self._debug_image_metadata_dms_coordinates_to_dd_coordinates(tags["GPS GPSLongitude"].values, tags["GPS GPSLongitudeRef"])
+            print(f'{"GPS Parsed DD Latitude":40} |   {parsed_lat}')
+            print(f'{"GPS Parsed DD Longitude":40} |   {parsed_lng}')
+            print(f'{"GPS Parsed Google Maps Link":40} |   https://google.com/maps/place/{parsed_lat},{parsed_lng}')
 
     def download_image_pil(self, image_url: str, timeout_in_seconds: int = 90) -> Image:
         # Make request
