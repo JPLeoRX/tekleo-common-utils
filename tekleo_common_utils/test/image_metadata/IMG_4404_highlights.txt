@@ -1,0 +1,21 @@
+Image Make                               |   Apple
+Image Model                              |   iPhone XS
+Image Orientation                        |   Horizontal (normal)
+Image Software                           |   16.4.1
+Image DateTime                           |   2023:05:12 15:49:33
+GPS GPSLatitudeRef                       |   N
+GPS GPSLatitude                          |   [32, 45, 509/100]
+GPS GPSLongitudeRef                      |   E
+GPS GPSLongitude                         |   [129, 53, 931/25]
+GPS GPSAltitudeRef                       |   0
+GPS GPSAltitude                          |   475558/13517
+GPS GPSSpeedRef                          |   K
+GPS GPSSpeed                             |   8146/65061
+GPS GPSDate                              |   2023:05:12
+EXIF DateTimeOriginal                    |   2023:05:12 15:49:33
+EXIF OffsetTimeOriginal                  |   +09:00
+EXIF LensMake                            |   Apple
+EXIF LensModel                           |   iPhone XS back dual camera 6mm f/2.4
+GPS Parsed DD Latitude                   |   32.75141388888889
+GPS Parsed DD Longitude                  |   129.89367777777778
+GPS Parsed Google Maps Link              |   https://google.com/maps/place/32.75141388888889,129.89367777777778

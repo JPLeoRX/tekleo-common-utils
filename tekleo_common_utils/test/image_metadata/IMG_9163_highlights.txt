@@ -1,0 +1,21 @@
+Image Make                               |   Apple
+Image Model                              |   iPhone 11 Pro Max
+Image Orientation                        |   Rotated 90 CW
+Image Software                           |   16.3.1
+Image DateTime                           |   2023:05:06 16:04:56
+GPS GPSLatitudeRef                       |   N
+GPS GPSLatitude                          |   [40, 59, 2159/100]
+GPS GPSLongitudeRef                      |   E
+GPS GPSLongitude                         |   [29, 1, 451/20]
+GPS GPSAltitudeRef                       |   0
+GPS GPSAltitude                          |   143023/7991
+GPS GPSSpeedRef                          |   K
+GPS GPSSpeed                             |   0
+GPS GPSDate                              |   2023:05:06
+EXIF DateTimeOriginal                    |   2023:05:06 16:04:56
+EXIF OffsetTimeOriginal                  |   +03:00
+EXIF LensMake                            |   Apple
+EXIF LensModel                           |   iPhone 11 Pro Max back dual wide camera 4.25mm f/1.8
+GPS Parsed DD Latitude                   |   40.989330555555554
+GPS Parsed DD Longitude                  |   29.022930555555554
+GPS Parsed Google Maps Link              |   https://google.com/maps/place/40.989330555555554,29.022930555555554
