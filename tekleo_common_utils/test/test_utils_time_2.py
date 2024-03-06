@@ -26,3 +26,7 @@ class TestUtilsTime2:
     def test_format_timestamp_ms_rfc3339(self):
         print(utils_time.format_timestamp_ms_rfc3339(1524479832000))
         print(utils_time.format_timestamp_ms_rfc3339(1524479832000, utils_time.get_timezone_pst()))
+        print(utils_time.format_timestamp_ms_rfc3339(utils_time.get_timestamp_ms_now()))
+        print(utils_time.format_timestamp_ms_rfc3339(utils_time.get_timestamp_ms_now(), hide_timezone=False))
+        print(utils_time.format_timestamp_ms_rfc3339(utils_time.get_timestamp_ms_now(), hide_milliseconds=False))
+        print(utils_time.format_timestamp_ms_rfc3339(utils_time.get_timestamp_ms_now(), hide_timezone=False, hide_milliseconds=False))

@@ -59,9 +59,15 @@ class UtilsTime:
         return int(round(timestamp_s * 1000))
 
     # This was used specifically in Ortho2 dates
-    def format_timestamp_ms_rfc3339(self, timestamp_ms: int, timezone: tzinfo = DEFAULT_TZ) -> str:
+    def format_timestamp_ms_rfc3339(self, timestamp_ms: int, timezone: tzinfo = DEFAULT_TZ, hide_timezone: bool = True, hide_milliseconds: bool = True) -> str:
         date_time_object = datetime.fromtimestamp(timestamp_ms / 1000,  tz=timezone)
-        return date_time_object.isoformat()
+        timespec = 'milliseconds'
+        if hide_milliseconds:
+            timespec = 'seconds'
+        date_time_str = date_time_object.isoformat(timespec=timespec)
+        if hide_timezone:
+            date_time_str = date_time_str[:-6]
+        return date_time_str
 
     # This was used specifically in Ortho2 dates
     def parse_timestamp_ms_rfc3339(self, date_str: str) -> int:
