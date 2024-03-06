@@ -57,6 +57,66 @@ class UtilsTime:
         date_time_object = datetime.strptime(date_str, date_format)
         timestamp_s = date_time_object.timestamp()
         return int(round(timestamp_s * 1000))
+
+    # This was used specifically in Ortho2 dates
+    def format_timestamp_ms_rfc3339(self, timestamp_ms: int, timezone: tzinfo = DEFAULT_TZ) -> str:
+        date_time_object = datetime.fromtimestamp(timestamp_ms / 1000,  tz=timezone)
+        return date_time_object.isoformat()
+
+    # This was used specifically in Ortho2 dates
+    def parse_timestamp_ms_rfc3339(self, date_str: str) -> int:
+        # Removing Z from the end of the timestamp
+        if date_str.endswith('Z'):
+            date_str = date_str[:-1]
+
+        # Case 1 - no time zone
+        if len(date_str) == 19:
+            dt = datetime.fromisoformat(date_str)
+            timestamp = int(dt.timestamp()) * 1000
+
+        # Case 2 - time zone, without milliseconds
+        elif len(date_str) == 25 and '.' not in date_str:
+            dt = datetime.fromisoformat(date_str)
+            timestamp = int(dt.timestamp()) * 1000
+
+        # Case 3 - time zone, with milliseconds
+        elif date_str[-6] in ['-', '+'] and '.' in date_str:
+            datetime_str = date_str[:-6]
+            timezone_str = date_str[-6:]
+
+            datetime_base_str = datetime_str.split('.')[0]
+            datetime_milliseconds_str = datetime_str.split('.')[1]
+            if len(datetime_milliseconds_str) == 1:
+                datetime_milliseconds_str = datetime_milliseconds_str + '00'
+            elif len(datetime_milliseconds_str) == 2:
+                datetime_milliseconds_str = datetime_milliseconds_str + '0'
+            elif len(datetime_milliseconds_str) > 3:
+                datetime_milliseconds_str = datetime_milliseconds_str[:3]
+
+            date_str = datetime_base_str + '.' + datetime_milliseconds_str + timezone_str
+            dt = datetime.fromisoformat(date_str)
+            timestamp = int(dt.timestamp()) * 1000
+
+        # Case 4 - milliseconds without timezone
+        elif '.' in date_str:
+            datetime_base_str = date_str.split('.')[0]
+            datetime_milliseconds_str = date_str.split('.')[1]
+            if len(datetime_milliseconds_str) == 1:
+                datetime_milliseconds_str = datetime_milliseconds_str + '00'
+            elif len(datetime_milliseconds_str) == 2:
+                datetime_milliseconds_str = datetime_milliseconds_str + '0'
+            elif len(datetime_milliseconds_str) > 3:
+                datetime_milliseconds_str = datetime_milliseconds_str[:3]
+
+            date_str = datetime_base_str + '.' + datetime_milliseconds_str
+            dt = datetime.fromisoformat(date_str)
+            timestamp = int(dt.timestamp()) * 1000
+
+        # Invalid date
+        else:
+            raise RuntimeError(f"Not an RFC3339 date format! {date_str}")
+
+        return timestamp
     #-------------------------------------------------------------------------------------------------------------------
 
 
