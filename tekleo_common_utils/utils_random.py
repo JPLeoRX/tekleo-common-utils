@@ -1,3 +1,4 @@
+from typing import List, Any
 from injectable import injectable
 import random
 from string import ascii_lowercase, ascii_uppercase
@@ -40,3 +41,9 @@ class UtilsRandom:
 
     def get_random_country(self) -> str:
         return self.faker.country()
+
+    def get_random_weighted_bool(self, prob_true: float):
+        return random.choices([True, False], weights=[prob_true, 1-prob_true], k=1)[0]
+
+    def get_random_weighted_from_list(self, values: List[Any], weights: List[float], number_of_elements_to_chose: int = 1) -> List[Any]:
+        return random.choices(values, weights=weights, k=number_of_elements_to_chose)
